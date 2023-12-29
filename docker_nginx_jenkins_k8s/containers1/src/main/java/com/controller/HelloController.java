@@ -1,8 +1,7 @@
 package com.controller;
 
 
-import com.service.HelloService;
-import com.service.PipelineExample;
+import com.service.*;
 import com.util.functional.CallFunctional;
 import com.util.functional.ListManipulator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,14 @@ class HelloController {
     @Autowired
     private PipelineExample pipelineExample;
 
+    @Autowired
+    private LimiterService limiterService;
+
+    @Autowired
+    TokenBucketRateLimiter tokenBucketRateLimiter;
+
+    @Autowired
+    RedisTransactionService redisTransactionService;
 
     @GetMapping("/sendMessage")
     public String sendMessage(String message,String channel) {
@@ -32,12 +39,12 @@ class HelloController {
     }
 
     @GetMapping("/hello")
-    public String hello() {
-        redisTemplate.opsForValue().set("key_auto","value_auto");
-        String key_auto = (String)redisTemplate.opsForValue().get("key_auto");
-        System.out.println(key_auto);
+    public String hello(String key,String value) {
+        redisTemplate.opsForValue().set(key,value);
+        value = (String)redisTemplate.opsForValue().get(key);
+        System.out.println(value);
 
-        return "Hello, World!port-8081"+key_auto;
+        return "Hello, World!\n"+key+":"+value;
     }
 
 
@@ -49,6 +56,21 @@ class HelloController {
         pipelineExample.executePipeline();
 
 
+    }
+
+    @GetMapping("/limiter")
+    public String limit() {
+
+        //return limiterService.limiter();
+        String flag = tokenBucketRateLimiter.allowRequest() ? "ok" : "no";
+        System.out.println(flag);
+        return flag;
+    }
+
+    @GetMapping("/transaction")
+    public String transaction() {
+        redisTransactionService.performTransaction();
+        return "";
     }
 
 

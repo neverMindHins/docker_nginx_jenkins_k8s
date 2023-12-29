@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-public class MyController {
+public class HttpController {
 
     @GetMapping("/api/myEndpoint")
     public String myEndpoint(HttpServletRequest request) {
